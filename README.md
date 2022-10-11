@@ -1,4 +1,13 @@
 # jetbrains license servers
+```shell
+cd ./jetbrains-license-servers
+go run 
+```
+
+
+
+
+
  find license server from internet
 
 
