@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -37,7 +38,11 @@ func queryFromCensys() (string, error) {
 	url := "https://search.censys.io/api/v2/hosts/search?q=service.service_name:%20HTTP%20AND%20services.http.response.headers.location:%20account.jetbrains.com/fls-auth&per_page=50&virtual_hosts=EXCLUDE"
 	method := "GET"
 
-	client := &http.Client{}
+	//避免x509: certificate signed by unknown authority
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
 	req, err := http.NewRequest(method, url, nil)
 
 	if err != nil {
@@ -70,8 +75,13 @@ func TestHost(ip string, port int) {
 	testQueue <- 1
 
 	url := "http://" + ip + ":" + strconv.Itoa(port) + "/"
-	client := http.Client{
-		Timeout: time.Second * 5,
+	//避免x509: certificate signed by unknown authority
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{
+		Timeout:   time.Second * 5,
+		Transport: tr,
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
